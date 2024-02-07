@@ -1,23 +1,18 @@
-![](https://raw.githubusercontent.com/Cumcord/assets/main/spitroast/banner.svg)
-
-# spitroast
-A very simple JavaScript monkeypatcher library that inserts your code in both ends.
+# mink
+A very simple JavaScript monkeypatcher library with simple error handling.
 
 # Usage
 ```javascript
 // ESM
-import * as spitroast from 'spitroast';
+import * as mink from 'mink';
 
 // CJS
-const spitroast = require('spitroast');
-
-// Deno / CDN
-import * as spitroast from 'https://esm.sh/spitroast';
+const mink = require('mink');
 
 const exampleObject = { testFunction: () => {} };
 
 // Patches that run before the original function
-spitroast.before('testFunction', exampleObject, (args) => { // args is an array of arguments passed to the function
+mink.before('testFunction', exampleObject, (args) => { // args is an array of arguments passed to the function
   console.log('Before');
 
   // You can return an array to replace the original arguments
@@ -27,7 +22,7 @@ exampleObject.testFunction(); // logs "Before"
 
 
 // Patches that run after the original function
-spitroast.after('testFunction', exampleObject, (args, response) => { // response is the return value of the function
+mink.after('testFunction', exampleObject, (args, response) => { // response is the return value of the function
   console.log('After');
 
   // You can return something to replace the original response
@@ -37,7 +32,7 @@ exampleObject.testFunction(); // logs "Before", then "After"
 
 
 // Patches that replace the original function
-const unpatch = spitroast.instead('testFunction', exampleObject, (args, originalFunction) => { // instead patches are passed the original function as the second argument
+const unpatch = mink.instead('testFunction', exampleObject, (args, originalFunction) => { // instead patches are passed the original function as the second argument
   console.log('Instead')
 });
 
@@ -48,7 +43,7 @@ unpatch();
 // Now if you call the function it'll log "Before" and "After" again
 
 // You can also unpatch every patch
-spitroast.unpatchAll();
+mink.unpatchAll();
 
 // Patches inherit context from the original function, you just have to use `this`
 ```

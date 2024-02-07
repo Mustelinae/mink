@@ -21,11 +21,16 @@ export default function (
 
   // Before patches
   for (const hook of patch.b.values()) {
-    const maybefuncArgs = hook.call(ctxt, funcArgs);
-    if (Array.isArray(maybefuncArgs)) funcArgs = maybefuncArgs;
+    try {
+      const maybefuncArgs = hook.call(ctxt, funcArgs);
+      if (Array.isArray(maybefuncArgs)) funcArgs = maybefuncArgs;
+    } catch (err) {
+      console.error("[mink] failed to run before patch!", err)
+    }
   }
 
   // Instead patches
+  // These should not expect to get error handled
   let workingRetVal = [...patch.i.values()].reduce(
     (prev, current) =>
       (...args: unknown[]) =>
@@ -38,8 +43,13 @@ export default function (
   )(...funcArgs);
 
   // After patches
-  for (const hook of patch.a.values())
-    workingRetVal = hook.call(ctxt, funcArgs, workingRetVal) ?? workingRetVal;
+  for (const hook of patch.a.values()) {
+    try {
+      workingRetVal = hook.call(ctxt, funcArgs, workingRetVal) ?? workingRetVal;
+    } catch (err) {
+      console.error("[mink] failed to run after patch!", err)
+    }
+  }
 
   return workingRetVal;
 }

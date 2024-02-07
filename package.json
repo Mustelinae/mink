@@ -1,6 +1,6 @@
 {
-  "name": "spitroast",
-  "version": "1.4.3",
+  "name": "mink",
+  "version": "1.0.0",
   "description": "A simple JavaScript function patcher.",
   "main": "dist/cjs.js",
   "module": "dist/esm/index.js",
@@ -11,9 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/Cumcord/spitroast"
+    "url": "github.com/Mustelinae/mink"
   },
-  "author": "creatable",
+  "author": "toonlink",
   "license": "CC0-1.0",
   "devDependencies": {
     "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",

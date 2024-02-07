@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
 
-import SR from "../dist/cjs.js";
+import MK from "../dist/cjs.js";
 
 const testFuncs = {};
 
@@ -22,20 +22,20 @@ const includeSetupAndTeardown = () => {
     testFuncs.passthru = (a) => a;
   });
 
-  afterEach(SR.unpatchAll);
+  afterEach(MK.unpatchAll);
 };
 
-describe("spitroast after patches", () => {
+describe("mink after patches", () => {
   includeSetupAndTeardown();
 
   it("should patch a simple func", () => {
-    SR.after("simple", testFuncs, ([, b], ret) => ret * b);
+    MK.after("simple", testFuncs, ([, b], ret) => ret * b);
 
     expect(testFuncs.simple(1, 2)).to.equal(6);
   });
 
   it("should be unpatchable", () => {
-    const unpatch = SR.after("simple", testFuncs, () => 0);
+    const unpatch = MK.after("simple", testFuncs, () => 0);
 
     unpatch();
 
@@ -43,7 +43,7 @@ describe("spitroast after patches", () => {
   });
 
   it("should maintain context", () => {
-    SR.after("contextual", testFuncs, function () {
+    MK.after("contextual", testFuncs, function () {
       expect(this?.x).to.be.equal(17);
       expect(this.y).to.be.equal(5);
       expect(this.z).to.be.equal("test");
@@ -55,17 +55,17 @@ describe("spitroast after patches", () => {
   });
 });
 
-describe("spitroast before patches", () => {
+describe("mink before patches", () => {
   includeSetupAndTeardown();
 
   it("should patch a simple func", () => {
-    SR.before("simple", testFuncs, ([a, b]) => [a + b, a * b]);
+    MK.before("simple", testFuncs, ([a, b]) => [a + b, a * b]);
 
     expect(testFuncs.simple(1, 2)).to.equal(5);
   });
 
   it("should be unpatchable", () => {
-    const unpatch = SR.before("simple", testFuncs, () => [0, 0]);
+    const unpatch = MK.before("simple", testFuncs, () => [0, 0]);
 
     unpatch();
 
@@ -73,7 +73,7 @@ describe("spitroast before patches", () => {
   });
 
   it("should maintain context", () => {
-    SR.before("contextual", testFuncs, function () {
+    MK.before("contextual", testFuncs, function () {
       expect(this?.x).to.be.equal(17);
       expect(this.y).to.be.equal(5);
       expect(this.z).to.be.equal("test");
@@ -85,17 +85,17 @@ describe("spitroast before patches", () => {
   });
 });
 
-describe("spitroast instead patches", () => {
+describe("mink instead patches", () => {
   includeSetupAndTeardown();
 
   it("should patch a simple func", () => {
-    SR.instead("simple", testFuncs, ([a, b], orig) => orig(a + b, b - a) * b);
+    MK.instead("simple", testFuncs, ([a, b], orig) => orig(a + b, b - a) * b);
 
     expect(testFuncs.simple(1, 2)).to.equal(8);
   });
 
   it("should be unpatchable", () => {
-    const unpatch = SR.instead("simple", testFuncs, () => 0);
+    const unpatch = MK.instead("simple", testFuncs, () => 0);
 
     unpatch();
 
@@ -103,7 +103,7 @@ describe("spitroast instead patches", () => {
   });
 
   it("should maintain context", () => {
-    SR.instead("contextual", testFuncs, function (args, orig) {
+    MK.instead("contextual", testFuncs, function (args, orig) {
       expect(this?.x).to.be.equal(17);
       expect(this.y).to.be.equal(5);
       expect(this.z).to.be.equal("test");
@@ -117,45 +117,45 @@ describe("spitroast instead patches", () => {
   });
 });
 
-describe("spitroast unpatches", () => {
+describe("mink unpatches", () => {
   includeSetupAndTeardown();
 
   it("should be able to unpatch the most recent on a given func", () => {
-    SR.after("passthru", testFuncs, ([], ret) => ret + "a");
-    const unpatch = SR.after("passthru", testFuncs, ([], ret) => ret + "b");
+    MK.after("passthru", testFuncs, ([], ret) => ret + "a");
+    const unpatch = MK.after("passthru", testFuncs, ([], ret) => ret + "b");
 
     unpatch();
     expect(testFuncs.passthru("x_")).to.equal("x_a");
   });
 
   it("should be able to unpatch the first on a given func", () => {
-    const unpatch = SR.after("passthru", testFuncs, ([], ret) => ret + "a");
-    SR.after("passthru", testFuncs, ([], ret) => ret + "b");
+    const unpatch = MK.after("passthru", testFuncs, ([], ret) => ret + "a");
+    MK.after("passthru", testFuncs, ([], ret) => ret + "b");
 
     unpatch();
     expect(testFuncs.passthru("x_")).to.equal("x_b");
   });
 
   it("should be able to unpatch an in-between on a given func", () => {
-    SR.after("passthru", testFuncs, ([], ret) => ret + "a");
-    const unpatch = SR.after("passthru", testFuncs, ([], ret) => ret + "b");
-    SR.after("passthru", testFuncs, ([], ret) => ret + "c");
+    MK.after("passthru", testFuncs, ([], ret) => ret + "a");
+    const unpatch = MK.after("passthru", testFuncs, ([], ret) => ret + "b");
+    MK.after("passthru", testFuncs, ([], ret) => ret + "c");
 
     unpatch();
     expect(testFuncs.passthru("x_")).to.equal("x_ac");
   });
 
   it("should be able to completely unpatch", () => {
-    SR.before("simple", testFuncs, ([a, b]) => [a + 1, b + 1]);
-    SR.after("simple", testFuncs, ([], ret) => ret / 2);
+    MK.before("simple", testFuncs, ([a, b]) => [a + 1, b + 1]);
+    MK.after("simple", testFuncs, ([], ret) => ret / 2);
 
-    SR.after("passthru", testFuncs, ([], ret) => ret + "_patched");
+    MK.after("passthru", testFuncs, ([], ret) => ret + "_patched");
 
-    SR.instead("contextual", testFuncs, ([a], orig) =>
+    MK.instead("contextual", testFuncs, ([a], orig) =>
       orig.call({ x: 1, y: 1, z: "a" }, a - 4)
     );
 
-    SR.unpatchAll();
+    MK.unpatchAll();
 
     const ctxt = { x: 17, y: 5, z: "test" };
 
